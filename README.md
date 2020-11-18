@@ -11,7 +11,7 @@ likely to report.
 
 Because randomization is 1:1 in Pfizer’s protocol, VE can be
 approximated as follows: given N observed study endpoints (in this case,
-symptomatic COVID-19 disease), VE ~ 1 - v/p, where v is the number of
+symptomatic COVID-19 disease), VE \~ 1 - v/p, where v is the number of
 endpoints observed in the vaccine arm and p is the number in the placebo
 arm. In Pfizer’s protocol, they specify a Beta(a, b) prior for theta =
 (1-VE) / (2-VE), where a = 0.700102 and b = 1. Note that theta = v /
@@ -78,7 +78,7 @@ knitr::kable(cbind(vax_cases, pt_est_ci), row.names = FALSE,
 | 2         | 0.971 (0.893, 0.998) |
 | 3         | 0.959 (0.871, 0.995) |
 | 4         | 0.948 (0.849, 0.991) |
-| 5         | 0.936 (0.827, 0.987) |
+| 5         | 0.936 (0.828, 0.987) |
 | 6         | 0.924 (0.806, 0.982) |
 | 7         | 0.912 (0.785, 0.976) |
 | 8         | 0.899 (0.763, 0.970) |
@@ -90,6 +90,42 @@ given the language in the press announcement seems to be 7 (or 8)
 vaccine cases and 87 (or 86) placebo. The credible intervals are also
 informative that we have high posterior belief under Pfizer’s prior that
 VE is really high.
+
+### Update based on full results
+
+Since interim results above, Pfizer reported results based on 170
+COVID-19 disease endpoints with 162:8 placebo:vaccine split. We can
+compute the posterior distribution for VE based on these results and
+their protocol-specified prior.
+
+``` r
+total_cases_full <- 170
+v <- 8
+p <- total_cases_full - v
+# specified in protocol for final analysis
+ci_level_full <- 0.986
+# posterior beta dist. parameters
+alpha_v <- a + v
+beta_v <- b + p
+theta_post_samps <- rbeta(5e6, alpha_v, beta_v)
+ve_post_samps <- (1 - 2*theta_post_samps) / (1 - theta_post_samps)
+pt_est <- mean(ve_post_samps)
+ci <- quantile(ve_post_samps, c((1 - ci_level)/2, 1 - (1 - ci_level)/2))
+```
+
+The results indicate an estimate VE (98.6% credible interval) of 0.946
+(0.878, 0.984).
+
+Here is the full posterior distribution.
+
+``` r
+ve_dat <- data.frame(ve = ve_post_samps)
+library(ggplot2)
+ggplot(ve_dat, aes(ve)) + 
+  geom_density() + theme_bw()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 1.  Below, I’m being lazy and using a numeric approximation to the
     posterior mean of VE; maybe there’s an analytic solution, but I’m

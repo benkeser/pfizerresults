@@ -51,3 +51,36 @@ knitr::kable(cbind(vax_cases, pt_est_ci), row.names = FALSE,
 ```
 
 So if this is indeed how Pfizer is reporting, then the likely case split given the language in the press announcement seems to be 7 (or 8) vaccine cases and 87 (or 86) placebo. The credible intervals are also informative that we have high posterior belief under Pfizer's prior that VE is really high.
+
+### Update based on full results
+
+Since interim results above, Pfizer reported results based on 170 COVID-19 disease endpoints with 162:8 placebo:vaccine split. We can compute the posterior distribution for VE based on these results and their protocol-specified prior. 
+
+```{r}
+total_cases_full <- 170
+v <- 8
+p <- total_cases_full - v
+# specified in protocol for final analysis
+ci_level_full <- 0.986
+# posterior beta dist. parameters
+alpha_v <- a + v
+beta_v <- b + p
+theta_post_samps <- rbeta(5e6, alpha_v, beta_v)
+ve_post_samps <- (1 - 2*theta_post_samps) / (1 - theta_post_samps)
+pt_est <- mean(ve_post_samps)
+ci <- quantile(ve_post_samps, c((1 - ci_level)/2, 1 - (1 - ci_level)/2))
+```
+
+The results indicate an estimate VE (98.6% credible interval) of `r prettify(pt_est, ci)`.
+
+Here is the full posterior distribution.
+
+```{r}
+ve_dat <- data.frame(ve = ve_post_samps)
+library(ggplot2)
+ggplot(ve_dat, aes(ve)) + 
+  geom_density() + theme_bw()
+```
+
+
+
