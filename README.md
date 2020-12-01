@@ -11,7 +11,7 @@ likely to report.
 
 Because randomization is 1:1 in Pfizer’s protocol, VE can be
 approximated as follows: given N observed study endpoints (in this case,
-symptomatic COVID-19 disease), VE \~ 1 - v/p, where v is the number of
+symptomatic COVID-19 disease), VE ~ 1 - v/p, where v is the number of
 endpoints observed in the vaccine arm and p is the number in the placebo
 arm. In Pfizer’s protocol, they specify a Beta(a, b) prior for theta =
 (1-VE) / (2-VE), where a = 0.700102 and b = 1. Note that theta = v /
@@ -80,10 +80,10 @@ knitr::kable(cbind(vax_cases, pt_est_ci), row.names = FALSE,
 | 4         | 0.948 (0.849, 0.991) |
 | 5         | 0.936 (0.828, 0.987) |
 | 6         | 0.924 (0.806, 0.982) |
-| 7         | 0.912 (0.785, 0.976) |
+| 7         | 0.911 (0.785, 0.976) |
 | 8         | 0.899 (0.763, 0.970) |
-| 9         | 0.886 (0.742, 0.964) |
-| 10        | 0.873 (0.720, 0.957) |
+| 9         | 0.886 (0.741, 0.964) |
+| 10        | 0.873 (0.719, 0.957) |
 
 So if this is indeed how Pfizer is reporting, then the likely case split
 given the language in the press announcement seems to be 7 (or 8)
@@ -110,17 +110,22 @@ beta_v <- b + p
 theta_post_samps <- rbeta(5e6, alpha_v, beta_v)
 ve_post_samps <- (1 - 2*theta_post_samps) / (1 - theta_post_samps)
 pt_est <- mean(ve_post_samps)
-ci <- quantile(ve_post_samps, c((1 - ci_level)/2, 1 - (1 - ci_level)/2))
+ci <- quantile(ve_post_samps, c((1 - ci_level_full)/2, 1 - (1 - ci_level_full)/2))
 ```
 
 The results indicate an estimate VE (98.6% credible interval) of 0.946
-(0.878, 0.984).
+(0.889, 0.981).
 
 Here is the full posterior distribution.
 
 ``` r
 ve_dat <- data.frame(ve = ve_post_samps)
 library(ggplot2)
+```
+
+    ## Warning: package 'ggplot2' was built under R version 3.6.2
+
+``` r
 ggplot(ve_dat, aes(ve)) + 
   geom_density() + theme_bw()
 ```

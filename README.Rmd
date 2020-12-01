@@ -68,7 +68,7 @@ beta_v <- b + p
 theta_post_samps <- rbeta(5e6, alpha_v, beta_v)
 ve_post_samps <- (1 - 2*theta_post_samps) / (1 - theta_post_samps)
 pt_est <- mean(ve_post_samps)
-ci <- quantile(ve_post_samps, c((1 - ci_level)/2, 1 - (1 - ci_level)/2))
+ci <- quantile(ve_post_samps, c((1 - ci_level_full)/2, 1 - (1 - ci_level_full)/2))
 ```
 
 The results indicate an estimate VE (98.6% credible interval) of `r prettify(pt_est, ci)`.
